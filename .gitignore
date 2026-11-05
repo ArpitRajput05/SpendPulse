@@ -34,6 +34,9 @@ htmlcov/
 # Streamlit
 .streamlit/
 
+# Logs
+*.log
+
 # SQLite (keep directory or track DB schema)
 data/*.db-journal
 data/*.db-wal
