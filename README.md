@@ -1,7 +1,7 @@
-# 💸 SpendPulse | Personal Expense Analytics & Prediction
+# 🇮🇳 SpendPulse India | Smart Khata & AI Personal Finance Analytics
 
-> **Data Science / Machine Learning Portfolio Project** • *February 2026*  
-> An end-to-end personal finance intelligence platform featuring Exploratory Data Analysis (EDA), Time-Series Expense Forecasting, Isolation Forest Outlier Detection, a FastAPI REST service, and an interactive Streamlit dashboard.
+> **Data Science / Machine Learning Portfolio Project**  
+> An end-to-end personal finance intelligence platform tailored for the **Indian market**. Features standard INR (`₹`) Lakhs & Crores formatting, UPI & quick-commerce insights, Exploratory Data Analysis (EDA), Time-Series Expense Forecasting, Isolation Forest Anomaly Detection, a FastAPI REST service, and an interactive Streamlit dashboard.
 
 ---
 

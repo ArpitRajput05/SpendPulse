@@ -9,6 +9,7 @@ import subprocess
 import argparse
 import signal
 import urllib.request
+import webbrowser
 
 
 def is_service_ready(url: str, timeout: float = 1.0) -> bool:
@@ -20,6 +21,13 @@ def is_service_ready(url: str, timeout: float = 1.0) -> bool:
 
 
 def main():
+    if sys.platform == "win32":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
     parser = argparse.ArgumentParser(description="SpendPulse Unified Runner")
     parser.add_argument("--api-only", action="store_true", help="Launch only FastAPI backend")
     parser.add_argument("--ui-only", action="store_true", help="Launch only Streamlit dashboard")
@@ -75,16 +83,31 @@ def main():
             "--server.port",
             str(args.port_ui),
             "--server.headless",
+            "true",
+            "--browser.gatherUsageStats",
             "false",
         ]
         ui_proc = subprocess.Popen(st_cmd)
         processes.append(ui_proc)
 
+        # Wait for Streamlit to be ready and automatically launch default browser
+        ui_url = f"http://localhost:{args.port_ui}"
+        for _ in range(20):
+            if is_service_ready(ui_url):
+                break
+            time.sleep(0.5)
+
+        print(f"[SpendPulse] Automatically opening web browser at {ui_url} ...")
+        try:
+            webbrowser.open(ui_url)
+        except Exception as e:
+            print(f"[SpendPulse] Could not automatically open browser: {e}")
+
     print("\n" + "=" * 65)
-    print("  💸 SPENDPULSE IS RUNNING")
-    print(f"  • Frontend UI:    http://localhost:{args.port_ui}")
-    print(f"  • Backend API:    http://127.0.0.1:{args.port_api}")
-    print(f"  • API Swagger:    http://127.0.0.1:{args.port_api}/docs")
+    print("  [SpendPulse] SPENDPULSE IS RUNNING")
+    print(f"  * Frontend UI:    http://localhost:{args.port_ui}")
+    print(f"  * Backend API:    http://127.0.0.1:{args.port_api}")
+    print(f"  * API Swagger:    http://127.0.0.1:{args.port_api}/docs")
     print("  Press Ctrl+C to stop all services.")
     print("=" * 65 + "\n")
 

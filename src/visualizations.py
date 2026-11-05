@@ -73,10 +73,10 @@ def create_monthly_trend_chart(monthly_df: pd.DataFrame) -> go.Figure:
         ))
 
     fig.update_layout(
-        title="Monthly Cash Flow: Income vs. Expenses & Net Savings",
+        title="Monthly Cash Flow: Income vs. Expenses & Net Savings (₹)",
         barmode="group",
         xaxis_title="Month",
-        yaxis_title="Amount ($)",
+        yaxis_title="Amount (₹)",
         template=PLOTLY_TEMPLATE,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         hovermode="x unified",
@@ -104,7 +104,7 @@ def create_category_pie_chart(cat_df: pd.DataFrame) -> go.Figure:
         textposition="inside",
         textinfo="percent+label",
         hoverinfo="label+value+percent",
-        hovertemplate="<b>%{label}</b><br>Spent: $%{value:,.2f}<br>Share: %{percent}<extra></extra>",
+        hovertemplate="<b>%{label}</b><br>Spent: ₹%{value:,.0f}<br>Share: %{percent}<extra></extra>",
     )
     fig.update_layout(
         template=PLOTLY_TEMPLATE,
@@ -147,14 +147,14 @@ def create_budget_utilization_chart(budget_status_df: pd.DataFrame) -> go.Figure
         name="Actual Spent",
         orientation="h",
         marker_color=colors,
-        text=[f"${x:,.0f} ({pct:.0f}%)" for x, pct in zip(sorted_df["actual_spent"], sorted_df["utilization_pct"])],
+        text=[f"₹{x:,.0f} ({pct:.0f}%)" for x, pct in zip(sorted_df["actual_spent"], sorted_df["utilization_pct"])],
         textposition="auto",
     ))
 
     fig.update_layout(
-        title="Budget Utilization by Category (Spent vs. Limit)",
+        title="Budget Utilization by Category (Spent vs. Limit) (₹)",
         barmode="overlay",
-        xaxis_title="Amount ($)",
+        xaxis_title="Amount (₹)",
         yaxis_title="Category",
         template=PLOTLY_TEMPLATE,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
@@ -229,9 +229,9 @@ def create_forecast_chart(historical_monthly: pd.DataFrame, forecast_results: Di
         ))
 
     fig.update_layout(
-        title="Machine Learning Expense Forecast (Next Horizon)",
+        title="Machine Learning Expense Forecast (Next Horizon) (₹)",
         xaxis_title="Month",
-        yaxis_title="Expense Amount ($)",
+        yaxis_title="Expense Amount (₹)",
         template=PLOTLY_TEMPLATE,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         margin=dict(l=40, r=20, t=60, b=40),
@@ -261,7 +261,7 @@ def create_anomaly_scatter_chart(anomalies_df: pd.DataFrame) -> go.Figure:
         mode="markers",
         name="Normal Transaction",
         marker=dict(color="#94A3B8", size=6, opacity=0.6),
-        hovertemplate="<b>Date:</b> %{x|%Y-%m-%d}<br><b>Amount:</b> $%{y:,.2f}<br><b>Desc:</b> " + normal["description"] + "<extra></extra>",
+        hovertemplate="<b>Date:</b> %{x|%Y-%m-%d}<br><b>Amount:</b> ₹%{y:,.2f}<br><b>Desc:</b> " + normal["description"] + "<extra></extra>",
     ))
 
     # Flagged Anomalies
@@ -282,7 +282,7 @@ def create_anomaly_scatter_chart(anomalies_df: pd.DataFrame) -> go.Figure:
             hovertemplate=(
                 "🚨 <b>SUSPICIOUS TRANSACTION</b><br>"
                 "<b>Date:</b> %{x|%Y-%m-%d}<br>"
-                "<b>Amount:</b> $%{y:,.2f}<br>"
+                "<b>Amount:</b> ₹%{y:,.2f}<br>"
                 "<b>Category:</b> " + flagged["category"] + "<br>"
                 "<b>Risk Score:</b> " + flagged["anomaly_score"].astype(str) + "/100<br>"
                 "<b>Reason:</b> " + flagged["explanation"] + "<extra></extra>"
@@ -292,7 +292,7 @@ def create_anomaly_scatter_chart(anomalies_df: pd.DataFrame) -> go.Figure:
     fig.update_layout(
         title="Transaction Outlier Detection (Isolation Forest)",
         xaxis_title="Transaction Date",
-        yaxis_title="Amount ($)",
+        yaxis_title="Amount (₹)",
         template=PLOTLY_TEMPLATE,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         margin=dict(l=40, r=20, t=60, b=40),
@@ -321,7 +321,7 @@ def plot_seaborn_category_boxplots(df: pd.DataFrame) -> plt.Figure:
     )
     ax.set_title("Category-wise Spending Distributions & Outliers (Boxplot)", fontsize=13, weight="bold")
     ax.set_xlabel("Expense Category", fontsize=11)
-    ax.set_ylabel("Amount ($)", fontsize=11)
+    ax.set_ylabel("Amount (₹)", fontsize=11)
     plt.xticks(rotation=40, ha="right")
     plt.tight_layout()
     return fig
@@ -370,7 +370,7 @@ def plot_seaborn_density_distribution(df: pd.DataFrame) -> plt.Figure:
         ax=ax,
     )
     ax.set_title("Expense Amount Distribution (Histogram & KDE)", fontsize=13, weight="bold")
-    ax.set_xlabel("Transaction Amount ($)", fontsize=11)
+    ax.set_xlabel("Transaction Amount (₹)", fontsize=11)
     ax.set_ylabel("Frequency", fontsize=11)
     plt.tight_layout()
     return fig

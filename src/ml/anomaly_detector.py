@@ -115,11 +115,11 @@ class TransactionAnomalyDetector:
 
             reasons = []
             if ratio >= 3.0:
-                reasons.append(f"{ratio:.1f}x higher than category median (${median:.2f})")
+                reasons.append(f"{ratio:.1f}x higher than category median (₹{median:,.0f})")
             if z >= 3.0:
-                reasons.append(f"{z:.1f}σ above average spend (${mean:.2f})")
-            if amount > 1000.0:
-                reasons.append("Very large single-purchase transaction")
+                reasons.append(f"{z:.1f}σ above average spend (₹{mean:,.0f})")
+            if amount > 25000.0:
+                reasons.append("High-ticket single transaction (>₹25,000)")
 
             if not reasons:
                 reasons.append(f"Unusual timing and amount deviation for {cat}")

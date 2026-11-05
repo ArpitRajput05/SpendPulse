@@ -162,27 +162,27 @@ def get_transactions_df(
 
 
 DEFAULT_BUDGETS = {
-    "Housing & Rent": 1250.0,
-    "Groceries": 450.0,
-    "Dining Out": 250.0,
-    "Utilities": 190.0,
-    "Transportation": 180.0,
-    "Entertainment": 140.0,
-    "Shopping": 220.0,
-    "Healthcare": 110.0,
-    "Subscriptions": 45.0,
-    "Travel": 160.0,
+    "Rent & Housing": 25000.0,
+    "Groceries & Kirana": 12000.0,
+    "Food & Dining": 7500.0,
+    "Utilities & Bills": 4500.0,
+    "Travel & Commute": 5000.0,
+    "Shopping & E-Com": 8000.0,
+    "Entertainment & OTT": 3000.0,
+    "Healthcare & Fitness": 3500.0,
+    "Subscriptions": 1500.0,
+    "Investments & SIP": 15000.0,
 }
 
 
 def seed_synthetic_data(num_months: int = 14, overwrite: bool = False) -> int:
     """
-    Populates SQLite database with rich, realistic financial transactions
+    Populates SQLite database with rich, realistic Indian financial transactions
     and default category budgets.
     
-    Includes realistic recurring salaries, seasonal spending (holiday surges),
-    periodic bills, daily grocery/dining expenses, and deliberate anomalies
-    for machine learning detection.
+    Includes realistic monthly tech/corporate salaries in INR (₹), quarterly bonuses,
+    Diwali festival surges, everyday UPI transactions (Blinkit, Swiggy, Zomato, Zepto),
+    and deliberate anomalies for machine learning detection.
     """
     init_db()
     conn = get_db_connection()
@@ -222,86 +222,86 @@ def seed_synthetic_data(num_months: int = 14, overwrite: bool = False) -> int:
         year = cur_month_start.year
         month = cur_month_start.month
 
-        # Income: Bi-monthly Salary on 1st and 15th
+        # Income: Monthly Salary credited on 1st of month
         day_1 = datetime(year, month, 1)
-        day_15 = datetime(year, month, 15)
-
-        base_salary = 2400.0 + random.uniform(-50, 50)
+        base_salary = 125000.0 + random.uniform(-2000, 3000)
         transactions.append((
             day_1.strftime("%Y-%m-%d"),
             "Income",
             "income",
             round(base_salary, 2),
-            "Monthly Salary - Part 1",
-            "Bank Transfer",
-        ))
-        transactions.append((
-            day_15.strftime("%Y-%m-%d"),
-            "Income",
-            "income",
-            round(base_salary, 2),
-            "Monthly Salary - Part 2",
-            "Bank Transfer",
+            "Monthly Salary Credit - Tech Corp India",
+            "Net Banking",
         ))
 
-        # Freelance Income (occasional)
+        # Freelance Consulting / Side Gig (occasional, around 15th-20th)
         if random.random() < 0.45:
-            freelance_day = datetime(year, month, random.randint(5, 25))
+            freelance_day = datetime(year, month, random.randint(12, 24))
             transactions.append((
                 freelance_day.strftime("%Y-%m-%d"),
                 "Income",
                 "income",
-                round(random.uniform(350, 950), 2),
-                "Consulting & Freelance Web Project",
-                "Bank Transfer",
+                round(random.uniform(15000, 32000), 2),
+                "Consulting & UI Design Freelance Project",
+                "UPI (GPay / PhonePe / Paytm)",
             ))
 
-        # Year-end performance bonus in December
-        if month == 12:
-            bonus_day = datetime(year, month, 20)
+        # Diwali / Festive Performance Bonus (Oct/Nov)
+        if month in [10, 11] and random.random() < 0.6:
+            bonus_day = datetime(year, month, 22)
             transactions.append((
                 bonus_day.strftime("%Y-%m-%d"),
                 "Income",
                 "income",
-                1500.0,
-                "Annual Performance Bonus",
-                "Bank Transfer",
+                45000.0,
+                "Diwali Festive Performance Bonus",
+                "Net Banking",
             ))
 
-        # Recurring Fixed Expenses
-        # 1. Rent / Housing on the 2nd
+        # Fixed Monthly Expenses
+        # 1. House Rent & Maintenance on 2nd of month
         rent_date = datetime(year, month, 2)
         transactions.append((
             rent_date.strftime("%Y-%m-%d"),
-            "Housing & Rent",
+            "Rent & Housing",
             "expense",
-            1250.0,
-            "Apartment Monthly Rent",
-            "Bank Transfer",
+            25000.0,
+            "Apartment Rent & Society Maintenance",
+            "Net Banking",
         ))
 
-        # 2. Utilities (Power, Water, Internet)
-        util_date = datetime(year, month, 5)
-        # Power is higher in winter/summer
-        seasonal_util_mult = 1.25 if month in [12, 1, 7, 8] else 1.0
-        util_amount = round(random.uniform(160, 210) * seasonal_util_mult, 2)
+        # 2. Monthly SIP & Mutual Fund Auto-debit on 5th
+        sip_date = datetime(year, month, 5)
+        transactions.append((
+            sip_date.strftime("%Y-%m-%d"),
+            "Investments & SIP",
+            "expense",
+            15000.0,
+            "Zerodha Coin / Groww Nifty 50 Index Fund SIP",
+            "Net Banking",
+        ))
+
+        # 3. Utilities & Broadband Bills on 7th
+        util_date = datetime(year, month, 7)
+        seasonal_ac_mult = 1.35 if month in [4, 5, 6, 7] else 1.0  # Summer AC electricity bills
+        util_amount = round(random.uniform(3800, 4800) * seasonal_ac_mult, 2)
         transactions.append((
             util_date.strftime("%Y-%m-%d"),
-            "Utilities",
+            "Utilities & Bills",
             "expense",
             util_amount,
-            "Electricity, Gas & Fiber Internet",
-            "Debit Card",
+            "Electricity (BESCOM/Tata Power), Gas & JioFiber Wi-Fi",
+            "UPI (GPay / PhonePe / Paytm)",
         ))
 
-        # 3. Subscriptions (Streaming, Cloud, Gym)
-        sub_date = datetime(year, month, 8)
+        # 4. OTT & Digital Subscriptions on 10th
+        sub_date = datetime(year, month, 10)
         transactions.append((
             sub_date.strftime("%Y-%m-%d"),
             "Subscriptions",
             "expense",
-            44.99,
-            "Netflix, Spotify & Gym Membership",
+            1499.0,
+            "Netflix, Disney+ Hotstar, Spotify & YouTube Premium",
             "Credit Card",
         ))
 
@@ -311,14 +311,15 @@ def seed_synthetic_data(num_months: int = 14, overwrite: bool = False) -> int:
         else:
             cur_month_start = datetime(year, month + 1, 1)
 
-    # Variable Everyday Expenses across the timeline
+    # Everyday Indian consumer spending vendors
+    grocery_vendors = ["Blinkit 10-Min Delivery", "Zepto Quick Delivery", "Instamart", "DMart Supermarket", "Local Subzi & Kirana Mandi", "BigBasket"]
+    dining_vendors = ["Swiggy Gourmet", "Zomato Delivery", "Chai Point & Samosa", "Haldiram's Sweets", "Biryani by Kilo", "Third Wave Coffee Roasters", "Local Dosa & Darshini Corner"]
+    transport_vendors = ["Uber Auto / Premier", "Ola Cabs", "Metro Card Smart Recharge", "Indian Oil Fuel / Petrol", "FASTag Toll Auto-debit"]
+    shopping_vendors = ["Amazon India", "Flipkart Sale", "Myntra Fashion", "Ajio Trends", "Zara Store", "Nykaa Cosmetics"]
+    entertainment_vendors = ["BookMyShow Movie Tickets (PVR Inox)", "Gaming & Steam Pass", "Weekend Stand-up Comedy Show", "Bowling & Smaaash"]
+    health_vendors = ["Apollo Pharmacy 24/7", "Tata 1mg Medicine Order", "Cult.fit Gym & Fitness", "Practo Specialist Consult"]
+
     days_range = (end_date - start_date).days
-    grocery_stores = ["Trader Joe's", "Whole Foods", "Costco Wholesale", "Kroger", "Farmers Market"]
-    dining_places = ["Chipotle Mexican Grill", "Starbucks Coffee", "Olive Garden", "Local Pizzeria", "Thai Bistro", "Sushi Bar"]
-    transport_vendors = ["Shell Gas Station", "Metro Card Refill", "Uber Ride", "Chevron Fuel"]
-    shopping_vendors = ["Amazon", "Target", "IKEA", "Uniqlo", "Nike Store"]
-    entertainment_vendors = ["Cinema Movie Tickets", "Steam Games", "Concert Ticket", "Bowling Night"]
-    health_vendors = ["CVS Pharmacy", "Walgreens", "Dental Cleaning Co-Pay", "Optometry Exam"]
 
     for d in range(days_range):
         current_day = start_date + timedelta(days=d)
@@ -326,60 +327,62 @@ def seed_synthetic_data(num_months: int = 14, overwrite: bool = False) -> int:
         month = current_day.month
         is_weekend = current_day.weekday() >= 5
 
-        # Groceries: 2-3 times a week
-        if random.random() < 0.35:
-            store = random.choice(grocery_stores)
-            amount = round(random.uniform(32, 125), 2)
+        # Groceries & Kirana: Quick commerce is very frequent in India (3-4 times a week)
+        if random.random() < 0.40:
+            vendor = random.choice(grocery_vendors)
+            amount = round(random.uniform(220, 1850), 2)
+            payment = random.choices(["UPI (GPay / PhonePe / Paytm)", "Credit Card", "Debit Card"], weights=[0.70, 0.20, 0.10])[0]
             transactions.append((
                 date_str,
-                "Groceries",
+                "Groceries & Kirana",
                 "expense",
                 amount,
-                f"Groceries at {store}",
-                random.choice(["Credit Card", "Debit Card"]),
+                f"Groceries & Essentials ({vendor})",
+                payment,
             ))
 
-        # Dining Out: frequent on weekends
-        dining_prob = 0.55 if is_weekend else 0.22
+        # Food & Dining: Swiggy/Zomato/Chai
+        dining_prob = 0.55 if is_weekend else 0.30
         if random.random() < dining_prob:
-            place = random.choice(dining_places)
-            amount = round(random.uniform(15, 65), 2)
+            vendor = random.choice(dining_vendors)
+            amount = round(random.uniform(150, 1250), 2)
+            payment = random.choices(["UPI (GPay / PhonePe / Paytm)", "Credit Card"], weights=[0.75, 0.25])[0]
             transactions.append((
                 date_str,
-                "Dining Out",
+                "Food & Dining",
                 "expense",
                 amount,
-                f"Dinner / Coffee at {place}",
-                "Credit Card",
+                f"Meal / Chai at {vendor}",
+                payment,
             ))
 
-        # Transportation: fuel or transit
-        if random.random() < 0.20:
+        # Commute & Travel (Auto, Metro, Petrol)
+        if random.random() < 0.35:
             vendor = random.choice(transport_vendors)
-            amount = round(random.uniform(22, 58), 2)
+            amount = round(random.uniform(80, 850), 2)
             transactions.append((
                 date_str,
-                "Transportation",
+                "Travel & Commute",
                 "expense",
                 amount,
-                f"Fuel / Transit ({vendor})",
-                random.choice(["Credit Card", "Debit Card"]),
+                f"Commute ({vendor})",
+                "UPI (GPay / PhonePe / Paytm)",
             ))
 
-        # Shopping: occasional, surges in November / December (Black Friday / Holidays)
-        shopping_prob = 0.25 if month in [11, 12] else 0.12
-        if random.random() < shopping_prob:
+        # Shopping: Spikes during festive season (Diwali / Great Indian Festival in Oct-Nov)
+        shop_prob = 0.28 if month in [10, 11] else 0.12
+        if random.random() < shop_prob:
             vendor = random.choice(shopping_vendors)
-            base_amt = random.uniform(25, 110)
-            if month in [11, 12]:
-                base_amt *= 1.4
+            base_amt = random.uniform(850, 4200)
+            if month in [10, 11]:
+                base_amt *= 1.5
             transactions.append((
                 date_str,
-                "Shopping",
+                "Shopping & E-Com",
                 "expense",
                 round(base_amt, 2),
-                f"Online / Retail Order at {vendor}",
-                "Credit Card",
+                f"Order at {vendor}",
+                random.choices(["Credit Card", "UPI (GPay / PhonePe / Paytm)"], weights=[0.60, 0.40])[0],
             ))
 
         # Entertainment
@@ -387,44 +390,44 @@ def seed_synthetic_data(num_months: int = 14, overwrite: bool = False) -> int:
             vendor = random.choice(entertainment_vendors)
             transactions.append((
                 date_str,
-                "Entertainment",
+                "Entertainment & OTT",
                 "expense",
-                round(random.uniform(20, 75), 2),
+                round(random.uniform(400, 1800), 2),
                 f"Recreation - {vendor}",
-                "Credit Card",
+                "UPI (GPay / PhonePe / Paytm)",
             ))
 
-        # Healthcare: occasional prescriptions or co-pays
-        if random.random() < 0.05:
+        # Healthcare & Fitness
+        if random.random() < 0.08:
             vendor = random.choice(health_vendors)
             transactions.append((
                 date_str,
-                "Healthcare",
+                "Healthcare & Fitness",
                 "expense",
-                round(random.uniform(25, 80), 2),
-                f"Healthcare - {vendor}",
-                "Debit Card",
+                round(random.uniform(350, 2200), 2),
+                f"Wellness - {vendor}",
+                random.choice(["UPI (GPay / PhonePe / Paytm)", "Credit Card"]),
             ))
 
-        # Travel: summer & holiday season trips
-        if month in [6, 7, 12] and random.random() < 0.04:
+        # Weekend Gateways / Outstation Trips (Goa, Coorg, Rishikesh)
+        if month in [5, 6, 12, 1] and random.random() < 0.03:
             transactions.append((
                 date_str,
-                "Travel",
+                "Travel & Commute",
                 "expense",
-                round(random.uniform(180, 420), 2),
-                "Flight / Hotel Booking",
+                round(random.uniform(4500, 14000), 2),
+                "MakeMyTrip - Weekend Getaway Resort & IRCTC Express",
                 "Credit Card",
             ))
 
-    # DELIBERATE ANOMALIES (for Scikit-Learn Anomaly Detection / IsolationForest validation)
+    # REALISTIC DELIBERATE ANOMALIES (for Scikit-Learn Anomaly Detection / IsolationForest validation)
     deliberate_anomalies = [
-        ("2025-04-18", "Transportation", "expense", 1480.00, "Emergency Transmission & Brake Overhaul", "Credit Card"),
-        ("2025-07-22", "Travel", "expense", 1350.00, "Luxury Island Resort Booking & Flight Package", "Credit Card"),
-        ("2025-10-14", "Healthcare", "expense", 780.00, "Emergency Dental Surgery & Crown Replacement", "Debit Card"),
-        ("2025-11-28", "Shopping", "expense", 1899.99, "Black Friday UltraWide Monitor & Gaming Setup", "Credit Card"),
-        ("2026-01-19", "Dining Out", "expense", 345.50, "Catering Event / Accidental Double Charge", "Credit Card"),
-        ("2026-02-11", "Groceries", "expense", 412.80, "Bulk Annual Pantry & Organic Meat Stockup", "Credit Card"),
+        ("2025-05-14", "Travel & Commute", "expense", 46500.00, "MakeMyTrip - Goa Flight & 5-Star Beach Villa Package", "Credit Card"),
+        ("2025-08-19", "Healthcare & Fitness", "expense", 34800.00, "Apollo Hospitals - Emergency Dental Surgery & MRI Scan", "Credit Card"),
+        ("2025-10-24", "Shopping & E-Com", "expense", 68500.00, "Tanishq Jewellery - Festive Dhanteras 24K Gold Coin & Gift", "Credit Card"),
+        ("2025-11-12", "Shopping & E-Com", "expense", 84999.00, "Flipkart Big Billion Days - Apple iPhone 15 Pro Max", "Credit Card"),
+        ("2026-01-18", "Food & Dining", "expense", 5850.00, "Swiggy - Team Milestone Dinner / Suspected Accidental Double Bill", "UPI (GPay / PhonePe / Paytm)"),
+        ("2026-02-10", "Travel & Commute", "expense", 24500.00, "Maruti Suzuki Arena - Full Engine Clutch & Brake Overhaul", "Debit Card"),
     ]
 
     for anomaly in deliberate_anomalies:

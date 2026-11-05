@@ -16,6 +16,95 @@ def ensure_datetime(df: pd.DataFrame) -> pd.DataFrame:
     return df_copy
 
 
+def format_inr(number: float, include_symbol: bool = True, decimals: int = 2) -> str:
+    """Formats number in standard Indian Numbering system (Lakhs & Crores).
+    E.g. 150000.5 -> '₹1,50,000.50'
+    """
+    if pd.isna(number):
+        return "₹0.00" if include_symbol else "0.00"
+    prefix = "₹" if include_symbol else ""
+    sign = "-" if number < 0 else ""
+    number = abs(float(number))
+    if decimals > 0:
+        formatted_dec = f"{number:.{decimals}f}"
+        s, d = formatted_dec.split(".")
+        dec_part = "." + d
+    else:
+        s = f"{int(round(number))}"
+        dec_part = ""
+
+    if len(s) <= 3:
+        res = s
+    else:
+        last3 = s[-3:]
+        rest = s[:-3]
+        groups = []
+        while len(rest) > 2:
+            groups.insert(0, rest[-2:])
+            rest = rest[:-2]
+        if rest:
+            groups.insert(0, rest)
+        res = ",".join(groups) + "," + last3
+    return f"{sign}{prefix}{res}{dec_part}"
+
+
+def get_financial_health_score(kpis: Dict[str, Any]) -> Dict[str, Any]:
+    """Calculates a plain-English 0-100 Financial Health Score tailored for Indian consumers."""
+    savings_rate = kpis.get("savings_rate_pct", 0.0)
+    burn_pct = kpis.get("overall_budget_utilization_pct", 100.0)
+
+    # 1. Savings score (0 - 50 points)
+    if savings_rate >= 35.0:
+        savings_score = 50.0
+    elif savings_rate >= 20.0:
+        savings_score = 35.0 + (savings_rate - 20.0) * 1.0
+    elif savings_rate >= 0.0:
+        savings_score = (savings_rate / 20.0) * 35.0
+    else:
+        savings_score = 0.0
+
+    # 2. Budget burn control (0 - 50 points)
+    if burn_pct <= 75.0:
+        burn_score = 50.0
+    elif burn_pct <= 95.0:
+        burn_score = 50.0 - (burn_pct - 75.0) * 1.5
+    elif burn_pct <= 110.0:
+        burn_score = 20.0 - (burn_pct - 95.0) * 1.0
+    else:
+        burn_score = 5.0
+
+    total_score = int(round(min(100.0, max(0.0, savings_score + burn_score))))
+
+    if total_score >= 80:
+        status = "Excellent"
+        color = "#10B981"
+        badge = "🌟 Solid Financial Health"
+        advice = "Fantastic financial discipline! Your savings rate and monthly budget burn are in great shape."
+    elif total_score >= 60:
+        status = "Good"
+        color = "#3B82F6"
+        badge = "👍 Healthy & On Track"
+        advice = "Good financial stability. Keep an eye on dining & quick commerce orders to boost your savings rate further."
+    elif total_score >= 45:
+        status = "Moderate"
+        color = "#F59E0B"
+        badge = "⚠️ Needs Minor Attention"
+        advice = "Your monthly spend is catching up to your income. Consider curbing impulse shopping and dining out."
+    else:
+        status = "Critical"
+        color = "#EF4444"
+        badge = "🚨 High Burn Rate"
+        advice = "Your expenses are exceeding your budget. Review recurring subscriptions and large discretionary purchases."
+
+    return {
+        "score": total_score,
+        "status": status,
+        "color": color,
+        "badge": badge,
+        "advice": advice,
+    }
+
+
 def get_kpis(df: pd.DataFrame, budgets_df: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     """Calculates executive financial summary KPIs."""
     if df.empty:

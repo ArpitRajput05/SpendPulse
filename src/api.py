@@ -20,6 +20,7 @@ from src.database import (
 )
 from src.analytics import (
     get_kpis,
+    get_financial_health_score,
     monthly_spending_summary,
     category_spending_summary,
     current_month_budget_status,
@@ -157,6 +158,14 @@ def get_analytics_kpis():
     df = get_transactions_df()
     budgets_df = get_budgets_df()
     return get_kpis(df, budgets_df)
+
+
+@app.get("/api/analytics/health-score")
+def get_health_score_endpoint():
+    df = get_transactions_df()
+    budgets_df = get_budgets_df()
+    kpis = get_kpis(df, budgets_df)
+    return get_financial_health_score(kpis)
 
 
 @app.get("/api/analytics/monthly")
